@@ -18,7 +18,7 @@ typedef struct {
 Queue create_Q(int quantum, int processes);
 
 // Just swap the processes, but this also returns status, 0 and 1
-int swap(Queue q, int idx1, int idx2);
+void swap(Queue* q, int idx1, int idx2);
 
 /**
 Add the element to end of the heap.
@@ -26,13 +26,13 @@ Restore the heap property by the comparing the added element with its parent. If
 Continues this Process up the heap until the correct position is found or root is reached.
 ME: just insert, we need a function to float_up, this is because I don't want to keep this function alive after it finished everything
 */
-void push(Queue q, Process* p);
+void push(Queue* q, Process* p);
 
 /*
  * The steps that the previous insert didn't have, here we need to actually understand what is happenening and how to prioritize
  */
-void float_up(Queue q, int tnow);
-void float_down(Queue q, int tnow);
+void float_up(Queue* q, int tnow);
+void float_down(Queue* q, int tnow);
 
 /*
 Replace the root of heap with the last element in the heap.
@@ -41,13 +41,13 @@ Restore the heap property by the recursively comparing the new root with its chi
 with the higher priority child in the max-heap or the lower priority child in the min heap.
 Continues this Process down the heap until the correct position is found or the leaf is reached.
 */
-void pop(Queue q, int tnow);
+void pop(Queue* q, int tnow);
 
 /*
 * Return the element at the root of the heap.
 * Don't call it if Queue is empty
 */
-Process* peek(Queue q);
+Process* peek(Queue* q);
 
 /*
 Locate the element whose the priority needs to be updated.
@@ -62,4 +62,4 @@ void move();
 * Todo: think more about this because how do you actually move the process to the other q?
 * how do you fix the hole?, only the first processs of low should go to high?
 */
-void prioritize();
+void prioritize(Queue* low, Queue* high, int tnow);

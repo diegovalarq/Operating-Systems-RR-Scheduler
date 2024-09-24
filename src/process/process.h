@@ -24,5 +24,5 @@ typedef struct {
 } Process;
 
 
-Process* create(int pid, const char* nombre, int burst, int rafaga, int inter_IO_time, int deadline);
+Process* create(int pid, const char* nombre, int burst, int rafaga, int inter_IO_time, int deadline, int quantum, int tstart);
 int priority(Process* p, int tnow);

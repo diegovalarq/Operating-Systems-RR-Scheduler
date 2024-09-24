@@ -3,7 +3,7 @@
 
 // todo: const char* nombre quza no sea lo mejor, revisar
 Process* create(int pid, const char* nombre, int burst, int rafaga, int inter_IO_time, int deadline, int quantum, int tstart) {
-	Process* p = (Process*)malloc(sizeof(Process));;
+	Process* p = (Process*)malloc(sizeof(Process));
 	p->pid = pid;
 	p->burst_time = burst ;
 	p->burst_number = rafaga ;
@@ -21,5 +21,5 @@ Process* create(int pid, const char* nombre, int burst, int rafaga, int inter_IO
 
 
 int priority(Process* p, int tnow) {
-	return tnow - p->tlcpu - p->deadline;
+	return tnow - p->tlcpu - p->deadline_time;
 }

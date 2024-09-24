@@ -1,5 +1,6 @@
 #include <stdio.h>	// FILE, fopen, fclose, etc.
 #include <stdlib.h> // malloc, calloc, free, etc
+#include <stdbool.h>
 #include "../process/process.h"
 #include "../queue/queue.h"
 #include "../file_manager/manager.h"
@@ -91,15 +92,15 @@ void update_running_process() {
                 running_process->estado = FINISHED;
             } else {
                 running_process->estado = WAITING;
-                running_process->waiting_IO_time = running_process->inter_IO_time;
+                running_process->waiting_IO_time = running_process->waiting_IO_time;
             }
             running_process = NULL;
         } else if (running_process->available_quantum <= 0) {
             running_process->estado = READY;
             if (running_process->tlcpu == high_priority_queue.quantum) {
-                push(low_priority_queue, running_process);
+                push(&low_priority_queue, running_process);
             } else {
-                push(high_priority_queue, running_process);
+                push(&high_priority_queue, running_process);
             }
             // running_process->interruptions++;
             running_process = NULL;
@@ -112,7 +113,7 @@ void update_running_process() {
 void add_new_processes(Process** processes, int num_processes) {
     for (int i = 0; i < num_processes; i++) {
         if (processes[i]->t_start == current_time) {
-            push(high_priority_queue, processes[i]);
+            push(&high_priority_queue, processes[i]);
         }
     }
 }
@@ -122,8 +123,8 @@ void check_low_to_high_priority() {
     for (int i = 0; i < low_priority_queue.len; i++) {
         Process* p = low_priority_queue.arr[i];
         if (2 * p->deadline_time < current_time - p->tlcpu) {
-            pop(low_priority_queue, current_time);
-            push(high_priority_queue, p);
+            pop(&low_priority_queue, current_time);
+            push(&high_priority_queue, p);
             i--;  // Adjust index after removal
         }
     }
@@ -135,11 +136,11 @@ void check_low_to_high_priority() {
 void select_next_process() {
     if (running_process == NULL) {
         if (high_priority_queue.len > 0) {
-            running_process = peek(high_priority_queue);
-            pop(high_priority_queue, current_time);
+            running_process = peek(&high_priority_queue);
+            pop(&high_priority_queue, current_time);
         } else if (low_priority_queue.len > 0) {
-            running_process = peek(low_priority_queue);
-            pop(low_priority_queue, current_time);
+            running_process = peek(&low_priority_queue);
+            pop(&low_priority_queue, current_time);
         }
 
         if (running_process != NULL) {
@@ -148,7 +149,7 @@ void select_next_process() {
             running_process->available_quantum = (running_process->tlcpu == high_priority_queue.quantum) ? high_priority_queue.quantum : low_priority_queue.quantum;
             // if (running_process->response_time == -1) {
                 // running_process->response_time = current_time - running_process->t_inicio;
-            }
+            //}
         }
     }
 }
@@ -220,16 +221,16 @@ int main(int argc, char const *argv[])
 	// Start ticking
 
 	// Alternative main
-	// Based on Claude. REVISARLO BIEN 
-	InputFile *input_file = read_file(file_name, 'r');
+	// Based on Claude. REVISARLO BIEN
+	InputFile *input_file = read_file(file_name);
     int num_processes = input_file->len - 1;
     Process* processes[MAX_PROCESS];
 
     for (int i = 0; i < num_processes; i++) {
         char** line = input_file->lines[i + 1];
-        processes[i] = create(atoi(line[1]), line[0], atoi(line[3]), atoi(line[4]), atoi(line[5]), atoi(line[6]));
-        processes[i]->t_inicio = atoi(line[2]);
-        processes[i]->response_time = -1;//revisar esta linea
+        processes[i] = create(atoi(line[1]), line[0], atoi(line[3]), atoi(line[4]), atoi(line[5]), atoi(line[6]), 0, 0);
+        processes[i]->t_start = atoi(line[2]);
+        processes[i]->turnaround_time = -1;//revisar esta linea
     }
 
     initialize_scheduler(q, num_processes);
@@ -238,14 +239,14 @@ int main(int argc, char const *argv[])
     // Output results
     FILE *output = fopen(output_file, "w");
     for (int i = 0; i < num_processes; i++) {
-        fprintf(output, "%s,%d,%d,%d,%d,%d,%d\n",
+        fprintf(output, "%s,%d,%d,%d,%d,\n",
                 processes[i]->nombre,
                 processes[i]->pid,
-                processes[i]->interruptions,//revisar esta linea
+                // processes[i]->interruptions,//revisar esta linea
                 processes[i]->turnaround_time,
-                processes[i]->response_time, //revisar esta linea
-                processes[i]->waiting_time,
-                (processes[i]->turnaround_time > processes[i]->deadline) ? processes[i]->turnaround_time - processes[i]->deadline : 0);
+                // processes[i]->response_time, //revisar esta linea
+                processes[i]->waiting_IO_time,
+                (processes[i]->turnaround_time > processes[i]->deadline_time) ? processes[i]->turnaround_time - processes[i]->deadline_time : 0);
     }
     fclose(output);
 	input_file_destroy(input_file);

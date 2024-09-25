@@ -11,7 +11,7 @@ typedef enum {
 // Revisar si corresponden ajustes
 typedef struct {
 	int pid;
-	const char* nombre;
+	char* nombre;
 	int burst_time; // Tiempo de ejecucion por rafaga!
 	status estado;
 	int burst_number; // RAFAGA!, tu tutututu (cantidad)
@@ -24,5 +24,5 @@ typedef struct {
 } Process;
 
 
-Process* create(int pid, const char* nombre, int burst, int rafaga, int inter_IO_time, int deadline, int quantum, int tstart);
+Process* create(int pid, char* nombre, int burst, int rafaga, int inter_IO_time, int deadline, int t_start);//, int quantum);
 int priority(Process* p, int tnow);

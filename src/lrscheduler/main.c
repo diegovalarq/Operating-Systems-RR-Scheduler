@@ -6,7 +6,7 @@
 #include "../file_manager/manager.h"
 #include "scheduler.c"
 
-#define MAX_PROCESS 100
+// #define MAX_PROCESS 8 //placeholder
 
 /* Shit to do
  * - [ ] Los procesos HIGH tienen preferencia sobre los de la cola LOW
@@ -53,9 +53,9 @@ void clear(Process** p, int len) {
 
 int main(int argc, char const *argv[])
 {
-    // Check if enough arguments are provided
+    // Codigo para verificar que se ingresa el input correctamente
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <file_name> <quantum>\n", argv[0]);
+        fprintf(stderr, "Input debe seguir formato: %s <file_name> <quantum>\n", argv[0]);
         return 1;
     }
 	/*Lectura del input*/
@@ -68,10 +68,10 @@ int main(int argc, char const *argv[])
 
 
 	FILE* input_file = fopen(file_name, "r");
-    if (input_file == NULL) {
-    fprintf(stderr, "Error: Could not open file %s\n", file_name);
-    exit(1);
-}
+    // if (input_file == NULL) {
+    // fprintf(stderr, "Error: Could not open file %s\n", file_name);
+    // exit(1);
+// }
 
 	// Process helper
 	int processes;
@@ -99,51 +99,44 @@ int main(int argc, char const *argv[])
 		printf("%s %d %d %d %d %d %d\n", nombre, pid, t_inicio, burst, rafaga, inter_IO_time, deadline);
 		process_array[i] = create(pid, nombre, burst, rafaga, inter_IO_time, deadline, t_inicio);
 	}
+    // hasta aqui todo funciona bien
 
-	fclose(input_file);
 
     printf("Accediendo a los procesos...\n");
     for (int i = 0; i < processes; ++i) {
         printf("Proceso %d: %s %d %d %d %d %d %d\n", i, process_array[i]->nombre, process_array[i]->pid, process_array[i]->t_start, process_array[i]->burst_time, process_array[i]->burst_number, process_array[i]->waiting_IO_time, process_array[i]->deadline_time);
     }
+    // hasta aqui funciona bien
 
-	// Sort processes array
 
-	// Start ticking
+    declaring_queues(q, processes);
+    // Start ticking
+    run_scheduler(processes, processes, 0);
 
-	// Alternative main
-	// Based on Claude. REVISARLO BIEN
-	// InputFile *input_file = read_file(file_name);
-    // int num_processes = input_file->len - 1;
-    // Process* processes[MAX_PROCESS];
+	
 
-    // for (int i = 0; i < num_processes; i++) {
-    //     char** line = input_file->lines[i + 1];
-    //     processes[i] = create(atoi(line[1]), line[0], atoi(line[3]), atoi(line[4]), atoi(line[5]), atoi(line[6]), 0, 0);
-    //     processes[i]->t_start = atoi(line[2]);
-    //     processes[i]->turnaround_time = -1;//revisar esta linea
-    // }
+    fclose(input_file);
 
-    // initialize_scheduler(q, num_processes);
-    // run_scheduler(processes, num_processes);
 
-    // // Output results
+    
+
+    // Output results
     // FILE *output = fopen(output_file, "w");
-    // for (int i = 0; i < num_processes; i++) {
+    // for (int i = 0; i < processes; i++) {
     //     fprintf(output, "%s,%d,%d,%d,%d,\n",
-    //             processes[i]->nombre,
-    //             processes[i]->pid,
+    //             processes->nombre,
+    //             processes->pid,
     //             // processes[i]->interruptions,//revisar esta linea
     //             processes[i]->turnaround_time,
     //             // processes[i]->response_time, //revisar esta linea
     //             processes[i]->waiting_IO_time,
     //             (processes[i]->turnaround_time > processes[i]->deadline_time) ? processes[i]->turnaround_time - processes[i]->deadline_time : 0);
     // }
-    // fclose(output);
-	// input_file_destroy(input_file);
-    // for (int i = 0; i < num_processes; i++) {
-    //     free(processes[i]);
-    // }
+    fclose(output);
+	input_file_destroy(input_file);
+    for (int i = 0; i < processes; i++) {
+        free(processes);
+    }
 
     // return 0;
 

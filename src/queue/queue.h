@@ -1,13 +1,6 @@
 #pragma once
 #include "../process/process.h"
 
-/*
-Time and Space Complexity
-
-Time complexity: O(log n), where n is the number of nodes.
-Space complexity: O(n), where n is the number of elements in the priority queue.
-*/
-
 typedef struct {
 	Process** arr;
 	int len;

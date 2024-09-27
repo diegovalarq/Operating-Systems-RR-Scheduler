@@ -4,11 +4,11 @@
 #include "../process/process.h"
 #include "../queue/queue.h"
 #include "../file_manager/manager.h"
-#include "scheduler.c"
+#include "../scheduler/scheduler.h"
 
 // #define MAX_PROCESS 8 //placeholder
 
-/* Shit to do
+/*  To do
  * - [ ] Los procesos HIGH tienen preferencia sobre los de la cola LOW
  * - [ ] Todo proceso nuevo ingresa en la cola HIGH y lo hace con estado READY
  * - [ ] Si dos procesos o mas tienen prioridad y estan en la misma cola deberan ser ejecutados segun raundo robingu
@@ -51,6 +51,17 @@ void clear(Process** p, int len) {
 	free(p);
 }
 
+// Queue high_priority_queue;
+// Queue low_priority_queue;
+// funcion para declarar las colas de alta y baja prioridad
+// con sus respectivos quantums
+// void declaring_queues(int quantum, int num_processes) {
+//     int q = quantum;
+//     high_priority_queue = create_Q(2 * q, num_processes);
+//     low_priority_queue = create_Q(q, num_processes);
+// }
+
+
 int main(int argc, char const *argv[])
 {
     // Codigo para verificar que se ingresa el input correctamente
@@ -66,6 +77,7 @@ int main(int argc, char const *argv[])
     // char *output_file = (char*)argv[2];
     // q = atoi(argv[3]);
 
+       
 
 	FILE* input_file = fopen(file_name, "r");
     // if (input_file == NULL) {
@@ -99,8 +111,6 @@ int main(int argc, char const *argv[])
 		printf("%s %d %d %d %d %d %d\n", nombre, pid, t_inicio, burst, rafaga, inter_IO_time, deadline);
 		process_array[i] = create(pid, nombre, burst, rafaga, inter_IO_time, deadline, t_inicio);
 	}
-    // hasta aqui todo funciona bien
-
 
     printf("Accediendo a los procesos...\n");
     for (int i = 0; i < processes; ++i) {
@@ -109,17 +119,11 @@ int main(int argc, char const *argv[])
     // hasta aqui funciona bien
 
 
-    declaring_queues(q, processes);
+    declaring_queues(quantum, processes);
     // Start ticking
-    run_scheduler(processes, processes, 0);
-
-	
+    run_scheduler(process_array, processes, 0);
 
     fclose(input_file);
-
-
-    
-
     // Output results
     // FILE *output = fopen(output_file, "w");
     // for (int i = 0; i < processes; i++) {
@@ -129,13 +133,13 @@ int main(int argc, char const *argv[])
     //             // processes[i]->interruptions,//revisar esta linea
     //             processes[i]->turnaround_time,
     //             // processes[i]->response_time, //revisar esta linea
-    //             processes[i]->waiting_IO_time,
-    //             (processes[i]->turnaround_time > processes[i]->deadline_time) ? processes[i]->turnaround_time - processes[i]->deadline_time : 0);
+    //             processes[i]->sum_waiting_time,
+    //             processes[i]->sum_past_deadline
     // }
-    fclose(output);
-	input_file_destroy(input_file);
+    // fclose(output);
+	// input_file_destroy(input_file);
     for (int i = 0; i < processes; i++) {
-        free(processes);
+        free(process_array[i]);
     }
 
     // return 0;

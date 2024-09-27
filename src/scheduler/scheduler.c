@@ -1,4 +1,3 @@
-#pragma once
 #include <stdio.h>	// FILE, fopen, fclose, etc.
 #include <stdlib.h> // malloc, calloc, free, etc
 #include <stdbool.h>
@@ -8,12 +7,6 @@
 
 #define MAX_PROCESS 8
 
-Queue high_priority_queue;
-Queue low_priority_queue;
-
-int current_time = 0;
-int q;
-
 // void clear(Process** p, int len) {
 // 	for (int i = 0; i < len; ++i) {
 // 		free(p[i]);
@@ -21,13 +14,15 @@ int q;
 // 	free(p);
 // }
 
-// funcion para declarar las colas de alta y baja prioridad
-// con sus respectivos quantums
+Queue high_priority_queue;
+Queue low_priority_queue;
+
 void declaring_queues(int quantum, int num_processes) {
-    q = quantum;
+    int q = quantum;
     high_priority_queue = create_Q(2 * q, num_processes);
     low_priority_queue = create_Q(q, num_processes);
 }
+
 
 // // Si un proceso esta en estado waiting, se actualiza su tiempo de espera
 // // Aquellos que terminan su tiempo de espera, pasan a estado READY
@@ -52,31 +47,31 @@ Process* running_process = NULL;
 // // Disminuye el burst time cuando tienen su turno
 // // Disminuye el quantum disponible cuando tienen su turno
 // // Aquellos que terminan su rafaga de cpu, pasan a estado WAITING
-void update_running_process() {
-    if (running_process != NULL) {
-        running_process->burst_time--;
-        running_process->available_quantum--;
+// void update_running_process() {
+//     if (running_process != NULL) {
+//         running_process->burst_time--;
+//         running_process->available_quantum--;
 
-        if (running_process->burst_time <= 0) {
-            running_process->burst_number--;
-            if (running_process->burst_number <= 0) {
-                running_process->estado = FINISHED;
-            } else {
-                running_process->estado = WAITING;
-            }
-            running_process = NULL;
-        } else if (running_process->available_quantum <= 0) {
-            running_process->estado = READY;
-            if (running_process->tlcpu == high_priority_queue.quantum) {
-                push(&low_priority_queue, running_process);
-            } else {
-                push(&high_priority_queue, running_process);
-            }
-            running_process->interruptions++;
-            running_process = NULL;
-        }
-    }
-}
+//         if (running_process->burst_time <= 0) {
+//             running_process->burst_number--;
+//             if (running_process->burst_number <= 0) {
+//                 running_process->estado = FINISHED;
+//             } else {
+//                 running_process->estado = WAITING;
+//             }
+//             running_process = NULL;
+//         } else if (running_process->available_quantum <= 0) {
+//             running_process->estado = READY;
+//             if (running_process->tlcpu == high_priority_queue.quantum) {
+//                 push(&low_priority_queue, running_process);
+//             } else {
+//                 push(&high_priority_queue, running_process);
+//             }
+//             running_process->interruptions++;
+//             running_process = NULL;
+//         }
+//     }
+// }
 
 // Todo proceso que ingresa al scheduler por primera vez, lo hace en
 // la cola High y estado Ready
@@ -118,29 +113,29 @@ void next_process(Queue* high, Queue* low, int current_tick) {
         // si el proceso todavia esta en la cpu, se actualiza su tlcpu
         running_process->tlcpu = current_tick;
         running_process->available_quantum--;
-        running_process->response_time = current_time - running_process->t_start; 
+        running_process->response_time = current_tick - running_process->t_start; 
     }
 }
 
 // Funcion que ejecuta el scheduler a partir de un loop while
-void run_scheduler(Process** processes, int num_processes, int current_tick) {
-    bool all_finished = false;
+// void run_scheduler(Process** processes, int num_processes, int current_tick) {
+//     bool all_finished = false;
 
-    while (!all_finished) {
-        update_process_status(processes, num_processes);
-        update_running_process();
-        add_process(processes, num_processes, current_tick);
-        low_to_high_priority(&low_priority_queue, &high_priority_queue, current_tick);
-        next_process(&high_priority_queue, &low_priority_queue, current_tick);
+//     while (!all_finished) {
+//         update_process_status(processes, num_processes);
+//         update_running_process();
+//         add_process(processes, num_processes, current_tick);
+//         low_to_high_priority(&low_priority_queue, &high_priority_queue, current_tick);
+//         next_process(&high_priority_queue, &low_priority_queue, current_tick);
 
-        all_finished = true;
-        for (int i = 0; i < num_processes; i++) {
-            if (processes[i]->estado != FINISHED) {
-                all_finished = false;
-                break;
-            }
-        }
+//         all_finished = true;
+//         for (int i = 0; i < num_processes; i++) {
+//             if (processes[i]->estado != FINISHED) {
+//                 all_finished = false;
+//                 break;
+//             }
+//         }
 
-        current_tick++;
-    }
-}
+//         current_tick++;
+//     }
+// }
